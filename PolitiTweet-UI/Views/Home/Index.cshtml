@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "PolitiTweet Search";
+}
+@model PolitiTweet_UI.Models.TweetResultViewModel
+
+<div class="s003">
+    <div class="text-center">
+        <h1 class="display-4" style="margin:2rem;">PolitiTweet Search</h1>
+    </div>
+    <form>
+        <div class="inner-form">
+            <div class="input-field second-wrap">
+                <input id="search" type="text" placeholder="Enter Keywords">
+            </div>
+            <div class="input-field third-wrap">
+                <button id="searchButton" class="btn-search" type="button">
+                    <span>Search</span>
+                </button>
+            </div>
+        </div>
+    </form>
+    <p id="loading" style="text-align:center; margin-top:5rem;" hidden>Searching...</p>
+    @if (Model.Message != null)
+    {
+        <div class="alert alert-success" style="text-align:center; margin-top:5rem;" role="alertdialog">
+            <h5 class="text-center alert-heading">@Model.Message</h5>
+        </div>
+    }
+
+    @if (Model.tweetResults.Any())
+    {
+<p style="justify-content:start; margin-top:4rem;">Displaying results for: "@Model.queryInput"</p>
+        <table class="table" style="margin-top:1rem;">
+            <tbody>
+                <tr style="text-align:center;">
+                    <th>Politician</th>
+                    <th>Tweet</th>
+                </tr>
+                @foreach (var tweet in Model.tweetResults)
+                {
+            <tr>
+                <td class="text-center">@tweet.Author</td>
+                <td class="text-center">@tweet.Text</td>
+            </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        $('#searchButton').click(function () {
+            sendToController();
+        });
+
+        $('#search').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                sendToController();
+            }
+        });
+
+        function sendToController() {
+            $('#loading').removeAttr('hidden');
+            var query = $('#search').val();
+
+            $.ajax({
+                url: '@Url.Action("Search")',
+                data: JSON.stringify(query),
+                type: "POST",
+                contentType: 'application/json',
+                cache: false,
+                success: function (result) {
+                    $("body").html(result);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrown);
+                }
+            });
+        };
+    });
+</script>
